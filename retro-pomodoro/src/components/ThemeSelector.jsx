@@ -1,5 +1,6 @@
 import { useTheme } from "../context/ThemeContext";
-import { Button } from "@/components/ui/button";
+import { Button } from './ui/button';
+
 
 export default function ThemeSelector() {
   const { themeKey, setThemeKey, availableThemes } = useTheme();

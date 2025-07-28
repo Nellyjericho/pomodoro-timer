@@ -1,48 +1,69 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSoundEffects } from "./useSoundEffects";
+import { MODES } from "../constants";
 
 export function usePomodoro() {
-  const [time, setTime] = useState(25 * 60); // 25 minutes
+  const [mode, setMode] = useState("pomodoro");
+  const [time, setTime] = useState(MODES.pomodoro);
   const [isRunning, setIsRunning] = useState(false);
+  const intervalRef = useRef(null); // 💡 persist the timer
   const { playStart, playReset, playEnd } = useSoundEffects();
 
   useEffect(() => {
-    let interval = null;
+    setTime(MODES[mode]);
+  }, [mode]);
 
-    if (isRunning) {
-      interval = setInterval(() => {
-        setTime((prevTime) => {
-          if (prevTime <= 1) {
-            clearInterval(interval);
-            setIsRunning(false);
-            playEnd();
-            return 0;
-          }
-          return prevTime - 1;
-        });
-      }, 1000);
-    }
+ useEffect(() => {
+  let interval = null;
 
-    return () => clearInterval(interval);
-  }, [isRunning, playEnd]);
+  if (isRunning) {
+    console.log("⏳ Starting interval...");
+    interval = setInterval(() => {
+      setTime((prevTime) => {
+        console.log("⏱️ Tick - Time left:", prevTime);
+
+        if (prevTime <= 1) {
+          clearInterval(interval);
+          setIsRunning(false);
+          playEnd();
+          return 0;
+        }
+
+        return prevTime - 1;
+      });
+    }, 1000);
+  }
+
+  return () => {
+    console.log("🛑 Clearing interval");
+    if (interval) clearInterval(interval);
+  };
+}, [isRunning]);
+
 
   const startPauseTimer = useCallback(() => {
+     console.log("🔥 Start/Pause clicked");
     setIsRunning((prev) => {
       const next = !prev;
+      console.log("✅ Toggling isRunning to:", next);
       if (next) playStart();
       return next;
     });
   }, [playStart]);
 
   const resetTimer = useCallback(() => {
-    setTime(25 * 60);
+    clearInterval(intervalRef.current);
+    intervalRef.current = null;
     setIsRunning(false);
+    setTime(MODES[mode]);
     playReset();
-  }, [playReset]);
+  }, [mode, playReset]);
 
   return {
     time,
     isRunning,
+    mode,
+    setMode,
     startPauseTimer,
     resetTimer,
   };

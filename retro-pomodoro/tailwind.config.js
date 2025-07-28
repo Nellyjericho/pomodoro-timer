@@ -22,7 +22,10 @@ module.exports = {
           "50%": { opacity: "0.4" },
         },
       },
+      backgroundImage: {
+        grid: "repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(255,255,255,0.05) 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(255,255,255,0.05) 20px)"
+      },
     },
   },
-  plugins: [],
-};
+    plugins: [],
+  }
